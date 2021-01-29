@@ -1,9 +1,20 @@
 class RestaurantResponse {
+  bool error;
+  String message;
+  int count;
   List<Restaurant> restaurants;
 
-  RestaurantResponse({this.restaurants});
+  RestaurantResponse({
+    this.restaurants,
+    this.error,
+    this.message,
+    this.count,
+  });
 
   RestaurantResponse.fromJson(Map<String, dynamic> json) {
+    error = json['error'];
+    message = json['message'];
+    count = json['count'];
     restaurants = new List<Restaurant>();
     json['restaurants'].forEach((restaurant) {
       restaurants.add(new Restaurant.fromJson(restaurant));

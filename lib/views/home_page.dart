@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:restaurant_app/blocs/list_restaurant_bloc.dart';
 import 'package:restaurant_app/components/custom_textfield.dart';
 import 'package:restaurant_app/components/shimmering_box.dart';
-import 'package:restaurant_app/models/restaurant.dart';
-import '../repository/helper.dart';
+import 'package:restaurant_app/models/list_restaurants.dart';
 import 'package:restaurant_app/views/detail_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -11,8 +11,22 @@ import 'package:restaurant_app/views/search_page.dart';
 import '../constant.dart' as Constant;
 import 'about_me_page.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   static const routeName = '/home_page';
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  ListRestaurantBloc bloc;
+
+  @override
+  void initState() {
+    super.initState();
+    bloc = ListRestaurantBloc();
+    bloc.fetchAllRestaurant();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,38 +45,31 @@ class HomePage extends StatelessWidget {
                 style: Constant.title1,
               ),
             ),
-            Container(
-              height: 140,
-              child: FutureBuilder(
-                future: DefaultAssetBundle.of(context)
-                    .loadString('assets/local_restaurant.json'),
-                builder: (BuildContext context, AsyncSnapshot snapshot) {
-                  final List<Restaurant> restaurants =
-                      Helper.parseRestaurant(snapshot.data);
-                  List<Restaurant> filter = List<Restaurant>();
-                  restaurants.forEach((r) {
-                    if (r.rating > 4.1) {
-                      filter.add(r);
-                    }
-                  });
-                  if (snapshot.hasData) {
-                    return ListView.builder(
+            StreamBuilder(
+              stream: bloc.popularRestaurant,
+              builder: (BuildContext context,
+                  AsyncSnapshot<List<Restaurant>> snapshot) {
+                if (snapshot.hasData) {
+                  return Container(
+                    height: 140,
+                    child: ListView.builder(
                       scrollDirection: Axis.horizontal,
                       physics: ScrollPhysics(),
-                      itemCount: filter.length,
+                      itemCount: snapshot.data.length,
                       clipBehavior: Clip.none,
                       itemBuilder: (context, index) {
-                        return buildPopularRestaurant(context, filter[index]);
+                        return buildPopularRestaurant(
+                            context, snapshot.data[index]);
                       },
-                    );
-                  } else {
-                    return Padding(
-                      padding: EdgeInsets.only(left: 16),
-                      child: ShimmeringBox(),
-                    );
-                  }
-                },
-              ),
+                    ),
+                  );
+                } else {
+                  return Padding(
+                    padding: EdgeInsets.only(left: 16),
+                    child: ShimmeringBox(),
+                  );
+                }
+              },
             ),
             SizedBox(height: 24),
             Padding(
@@ -72,28 +79,20 @@ class HomePage extends StatelessWidget {
                 style: Constant.title1,
               ),
             ),
-            FutureBuilder(
-              future: DefaultAssetBundle.of(context)
-                  .loadString('assets/local_restaurant.json'),
-              builder: (BuildContext context, AsyncSnapshot snapshot) {
-                final List<Restaurant> restaurants =
-                    Helper.parseRestaurant(snapshot.data);
-                List<Restaurant> filter = List<Restaurant>();
-                restaurants.forEach((r) {
-                  if (r.rating <= 4.1) {
-                    filter.add(r);
-                  }
-                });
+            StreamBuilder(
+              stream: bloc.allRestaurant,
+              builder: (BuildContext context,
+                  AsyncSnapshot<List<Restaurant>> snapshot) {
                 if (snapshot.hasData) {
                   return ListView.builder(
                     padding: EdgeInsets.only(bottom: 48),
                     scrollDirection: Axis.vertical,
                     physics: ScrollPhysics(),
-                    itemCount: filter.length,
+                    itemCount: snapshot.data.length,
                     clipBehavior: Clip.none,
                     shrinkWrap: true,
                     itemBuilder: (context, index) {
-                      return buildRestaurantCell(context, filter[index]);
+                      return buildRestaurantCell(context, snapshot.data[index]);
                     },
                   );
                 } else {
