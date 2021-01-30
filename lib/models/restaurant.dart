@@ -26,14 +26,4 @@ class Restaurant {
         city: json["city"],
         rating: json["rating"].toDouble(),
       );
-
-  Map<String, dynamic> toJson() => {
-        "id": id,
-        "name": name,
-        "description": description,
-        "pictureId":
-            'https://restaurant-api.dicoding.dev/images/medium/${pictureId}',
-        "city": city,
-        "rating": rating,
-      };
 }

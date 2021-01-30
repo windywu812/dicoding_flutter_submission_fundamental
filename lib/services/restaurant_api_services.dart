@@ -46,4 +46,20 @@ class ApiServices {
           'Failed to load post with status code: ${response.statusCode}');
     }
   }
+
+  Future<http.Response> postReview(
+      String id, String name, String review) async {
+    return await http.post(
+      baseURL + 'review',
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+        'X-Auth-Token': '12345',
+      },
+      body: jsonEncode(<String, String>{
+        'id': id,
+        'name': name,
+        'review': review,
+      }),
+    );
+  }
 }

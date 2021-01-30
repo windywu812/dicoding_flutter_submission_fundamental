@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:restaurant_app/blocs/restaurant_bloc.dart';
-import 'package:restaurant_app/components/shimmering_box.dart';
 import 'package:restaurant_app/models/detail_restaurant.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:restaurant_app/services/restaurant_api_services.dart';
 import '../constant.dart' as Constant;
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import '../repository/sqlite_db.dart';
@@ -22,6 +22,8 @@ class _DetailPageState extends State<DetailPage> {
   bool _isFavorited = false;
   SqliteDb _db;
   RestaurantBloc _bloc;
+  String _name;
+  String _review;
 
   @override
   void initState() {
@@ -214,10 +216,94 @@ class _DetailPageState extends State<DetailPage> {
                         SizedBox(height: 16),
                         Text('Drinks', style: Constant.headline),
                         buildFoodList('drinks', snapshot),
+                        SizedBox(height: 24),
+                        Text('Reviews', style: Constant.headline),
+                        SizedBox(height: 16),
+                        buildReviewList(snapshot.data.customerReviews),
+                        SizedBox(height: 16),
+                        Text('Write a review', style: Constant.headline),
+                        TextField(
+                          onChanged: (name) {
+                            this._name = name;
+                          },
+                          style: Constant.bodyLabel,
+                          maxLines: null,
+                          keyboardType: TextInputType.multiline,
+                          cursorColor: Constant.primaryColor,
+                          decoration: new InputDecoration(
+                            hintText: "Enter your name",
+                            hintStyle: Constant.secondaryLabel,
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: Constant.primaryColor),
+                              //  when the TextFormField in unfocused
+                            ),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: Constant.primaryColor),
+                              //  when the TextFormField in focused
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 8,
+                        ),
+                        TextField(
+                          onChanged: (review) {
+                            this._review = review;
+                          },
+                          style: Constant.bodyLabel,
+                          maxLines: null,
+                          keyboardType: TextInputType.multiline,
+                          cursorColor: Constant.primaryColor,
+                          decoration: new InputDecoration(
+                            hintText: "Write here",
+                            hintStyle: Constant.secondaryLabel,
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: Constant.primaryColor),
+                              //  when the TextFormField in unfocused
+                            ),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: Constant.primaryColor),
+                              //  when the TextFormField in focused
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        InkWell(
+                          onTap: () {
+                            if (_review.isNotEmpty && _name.isNotEmpty) {
+                              ApiServices()
+                                  .postReview(snapshot.data.id, _name, _review)
+                                  .then((result) {
+                                if (result.statusCode == 200) {
+                                  _bloc.fetchDetail(widget.id);
+                                }
+                              });
+                            }
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Constant.primaryColor),
+                              color: Constant.primaryColor,
+                            ),
+                            width: 120,
+                            height: 44,
+                            child: Center(
+                              child: Text(
+                                'Send',
+                                style: Constant.bodyWhite,
+                              ),
+                            ),
+                          ),
+                        ),
                         SizedBox(height: 44),
                       ],
                     ),
-                  )
+                  ),
                 ],
               ),
             );
@@ -228,6 +314,53 @@ class _DetailPageState extends State<DetailPage> {
           }
         },
       ),
+    );
+  }
+
+  Widget buildReviewList(List<CustomerReview> reviews) {
+    return ListView.builder(
+      padding: EdgeInsets.only(top: 0),
+      itemCount: reviews.length,
+      physics: ScrollPhysics(),
+      shrinkWrap: true,
+      itemBuilder: (BuildContext context, int index) {
+        return Container(
+          margin: EdgeInsets.only(bottom: 16),
+          padding: EdgeInsets.symmetric(
+            horizontal: 12,
+            vertical: 12,
+          ),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Constant.primaryColor),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    reviews[index].name,
+                    style: Constant.headline,
+                  ),
+                  Text(
+                    reviews[index].date,
+                    style: Constant.secondaryLabel,
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 8,
+              ),
+              Text(
+                reviews[index].review,
+                style: Constant.bodyLabel,
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
