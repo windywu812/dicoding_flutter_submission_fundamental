@@ -1,5 +1,5 @@
-class Response {
-  Response({
+class AllRestaurantsResponse {
+  AllRestaurantsResponse({
     this.error,
     this.message,
     this.count,
@@ -11,7 +11,8 @@ class Response {
   int count;
   List<Restaurant> restaurants;
 
-  factory Response.fromJson(Map<String, dynamic> json) => Response(
+  factory AllRestaurantsResponse.fromJson(Map<String, dynamic> json) =>
+      AllRestaurantsResponse(
         error: json["error"],
         message: json["message"],
         count: json["count"],

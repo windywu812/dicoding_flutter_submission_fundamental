@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:restaurant_app/blocs/list_restaurant_bloc.dart';
+import 'package:restaurant_app/blocs/restaurant_bloc.dart';
 import 'package:restaurant_app/components/custom_textfield.dart';
 import 'package:restaurant_app/components/shimmering_box.dart';
 import 'package:restaurant_app/models/list_restaurants.dart';
@@ -19,12 +19,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  ListRestaurantBloc bloc;
+  RestaurantBloc bloc;
 
   @override
   void initState() {
     super.initState();
-    bloc = ListRestaurantBloc();
+    bloc = RestaurantBloc();
     bloc.fetchAllRestaurant();
   }
 
@@ -113,7 +113,7 @@ class _HomePageState extends State<HomePage> {
     return InkWell(
       onTap: () {
         Navigator.pushNamed(context, DetailPage.routeName,
-            arguments: restaurant);
+            arguments: restaurant.id);
       },
       child: Padding(
         padding: const EdgeInsets.only(left: 16.0),
@@ -193,7 +193,7 @@ class _HomePageState extends State<HomePage> {
     return InkWell(
       onTap: () {
         Navigator.pushNamed(context, DetailPage.routeName,
-            arguments: restaurant);
+            arguments: restaurant.id);
       },
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 16.0),
