@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:restaurant_app/blocs/restaurant_bloc.dart';
 import 'package:restaurant_app/components/shimmering_box.dart';
 import 'package:restaurant_app/models/restaurant.dart';
-import '../repository/helper.dart';
+import '../models/restaurant.dart';
 import 'package:restaurant_app/views/detail_page.dart';
 import '../constant.dart' as Constant;
 import '../components/custom_textfield.dart';
@@ -17,7 +18,15 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
-  String _keyword = '';
+  RestaurantBloc _bloc;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _bloc = RestaurantBloc();
+    _bloc.fetchSearch("");
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,25 +35,17 @@ class _SearchPageState extends State<SearchPage> {
         children: [
           _buildTopView(context),
           Expanded(
-            child: FutureBuilder(
-              future: DefaultAssetBundle.of(context)
-                  .loadString('assets/local_restaurant.json'),
-              builder: (BuildContext context, AsyncSnapshot snapshot) {
+            child: StreamBuilder(
+              stream: _bloc.searchRestaurant,
+              builder: (BuildContext context,
+                  AsyncSnapshot<List<Restaurant>> snapshot) {
                 if (snapshot.hasData) {
-                  final List<Restaurant> restaurants =
-                      Helper.parseRestaurant(snapshot.data);
-                  List<Restaurant> filter = List<Restaurant>();
-                  restaurants.forEach((r) {
-                    if (r.name.toLowerCase().contains(this._keyword)) {
-                      filter.add(r);
-                    }
-                  });
-                  if (filter.isNotEmpty) {
+                  if (snapshot.data.isNotEmpty) {
                     return Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: GridView.builder(
                         padding: EdgeInsets.only(top: 16, bottom: 64),
-                        itemCount: filter.length,
+                        itemCount: snapshot.data.length,
                         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
                           mainAxisSpacing: 16,
@@ -58,10 +59,10 @@ class _SearchPageState extends State<SearchPage> {
                               Navigator.pushNamed(
                                 context,
                                 DetailPage.routeName,
-                                arguments: filter[index],
+                                arguments: snapshot.data[index].id,
                               );
                             },
-                            child: buildGridCell(filter, index, context),
+                            child: buildGridCell(snapshot.data, index, context),
                           );
                         },
                       ),
@@ -85,7 +86,10 @@ class _SearchPageState extends State<SearchPage> {
                     );
                   }
                 } else {
-                  return ShimmeringBox();
+                  return Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: ShimmeringBox(),
+                  );
                 }
               },
             ),
@@ -220,7 +224,7 @@ class _SearchPageState extends State<SearchPage> {
                 CustomTextfield(
                   onChangedFunction: (keyword) {
                     setState(() {
-                      this._keyword = keyword;
+                      _bloc.fetchSearch(keyword);
                     });
                   },
                 ),

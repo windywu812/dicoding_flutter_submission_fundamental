@@ -1,20 +1,22 @@
 import 'package:restaurant_app/models/detail_restaurant.dart';
-import 'package:restaurant_app/models/list_restaurants.dart';
+import '../models/restaurant.dart';
 import 'package:restaurant_app/repository/restaurant_repository.dart';
 import 'package:rxdart/rxdart.dart';
 
 class RestaurantBloc {
   final repository = RestaurantRepository();
-
   final popularRestaurantFetcher = PublishSubject<List<Restaurant>>();
   final allRestaurantFetcher = PublishSubject<List<Restaurant>>();
   final detailRestaurantFetcher = PublishSubject<DetailRestaurant>();
+  final searchRestaurantFetcher = PublishSubject<List<Restaurant>>();
 
   Stream<List<Restaurant>> get popularRestaurant =>
       popularRestaurantFetcher.stream;
   Stream<List<Restaurant>> get allRestaurant => allRestaurantFetcher.stream;
   Stream<DetailRestaurant> get detailRestaurant =>
       detailRestaurantFetcher.stream;
+  Stream<List<Restaurant>> get searchRestaurant =>
+      searchRestaurantFetcher.stream;
 
   fetchAllRestaurant() async {
     List<Restaurant> restaurants = await repository.fetchAllRestaurant();
@@ -38,9 +40,15 @@ class RestaurantBloc {
     detailRestaurantFetcher.sink.add(detail);
   }
 
+  fetchSearch(String keyword) async {
+    List<Restaurant> restaurants = await repository.fetchSearch(keyword);
+    searchRestaurantFetcher.sink.add(restaurants);
+  }
+
   dispose() {
     allRestaurantFetcher.close();
     popularRestaurantFetcher.close();
     detailRestaurantFetcher.close();
+    searchRestaurantFetcher.close();
   }
 }

@@ -2,8 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:restaurant_app/models/restaurant.dart';
+import 'package:restaurant_app/services/restaurant_api_services.dart';
 import 'package:sqflite/sqflite.dart';
-import '../repository/helper.dart';
 
 class SqliteDb {
   static final shared = SqliteDb();
@@ -65,17 +65,14 @@ class SqliteDb {
 
     List<Restaurant> filter = List<Restaurant>();
 
-    DefaultAssetBundle.of(context)
-        .loadString('assets/local_restaurant.json')
-        .then((data) {
-      final List<Restaurant> restaurants = Helper.parseRestaurant(data);
+    final List<Restaurant> restaurants =
+        await ApiServices().fetchListRestaurant();
 
-      restaurants.forEach((r) {
-        checkIfFavorited(r.id).then((bool) {
-          if (bool) {
-            filter.add(r);
-          }
-        });
+    restaurants.forEach((r) {
+      checkIfFavorited(r.id).then((bool) {
+        if (bool) {
+          filter.add(r);
+        }
       });
     });
 

@@ -152,7 +152,7 @@ class _AboutMePageState extends State<AboutMePage> {
     return InkWell(
       onTap: () {
         Navigator.pushNamed(context, DetailPage.routeName,
-                arguments: restaurant)
+                arguments: restaurant.id)
             .then((value) => setState(() {}));
       },
       child: Padding(

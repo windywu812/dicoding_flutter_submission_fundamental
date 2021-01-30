@@ -1,5 +1,5 @@
 import 'package:restaurant_app/models/detail_restaurant.dart';
-import 'package:restaurant_app/models/list_restaurants.dart';
+import '../models/restaurant.dart';
 import '../services/restaurant_api_services.dart';
 
 class RestaurantRepository {
@@ -10,4 +10,7 @@ class RestaurantRepository {
 
   Future<DetailRestaurant> fetchDetail(String id) =>
       apiServices.fetchDetail(id);
+
+  Future<List<Restaurant>> fetchSearch(String keyword) =>
+      apiServices.fetchSearch(keyword);
 }

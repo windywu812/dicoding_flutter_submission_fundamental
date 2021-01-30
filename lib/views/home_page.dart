@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:restaurant_app/blocs/restaurant_bloc.dart';
 import 'package:restaurant_app/components/custom_textfield.dart';
 import 'package:restaurant_app/components/shimmering_box.dart';
-import 'package:restaurant_app/models/list_restaurants.dart';
+import '../models/restaurant.dart';
 import 'package:restaurant_app/views/detail_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';

@@ -1,6 +1,8 @@
 import 'package:restaurant_app/models/detail_restaurant.dart';
 import 'package:restaurant_app/models/list_restaurants.dart';
 import 'package:http/http.dart' as http;
+import 'package:restaurant_app/models/search_restaurant.dart';
+import '../models/restaurant.dart';
 import 'dart:convert';
 
 class ApiServices {
@@ -26,6 +28,22 @@ class ApiServices {
     } else {
       throw Exception(
           'Failed to load detail with status code: ${response.statusCode}');
+    }
+  }
+
+  Future<List<Restaurant>> fetchSearch(String keyword) async {
+    dynamic response;
+    if (keyword == "") {
+      response = await http.get(baseURL + 'list');
+    } else {
+      response = await http.get(baseURL + 'search?q=$keyword');
+    }
+    if (response.statusCode == 200) {
+      final result = SearchResponse.fromJson(json.decode(response.body));
+      return result.restaurants;
+    } else {
+      throw Exception(
+          'Failed to load post with status code: ${response.statusCode}');
     }
   }
 }

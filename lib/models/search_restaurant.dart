@@ -1,31 +1,26 @@
 import 'restaurant.dart';
 
-class AllRestaurantsResponse {
-  AllRestaurantsResponse({
+class SearchResponse {
+  SearchResponse({
     this.error,
-    this.message,
-    this.count,
+    this.founded,
     this.restaurants,
   });
 
   bool error;
-  String message;
-  int count;
+  int founded;
   List<Restaurant> restaurants;
 
-  factory AllRestaurantsResponse.fromJson(Map<String, dynamic> json) =>
-      AllRestaurantsResponse(
+  factory SearchResponse.fromJson(Map<String, dynamic> json) => SearchResponse(
         error: json["error"],
-        message: json["message"],
-        count: json["count"],
+        founded: json["founded"],
         restaurants: List<Restaurant>.from(
             json["restaurants"].map((x) => Restaurant.fromJson(x))),
       );
 
   Map<String, dynamic> toJson() => {
         "error": error,
-        "message": message,
-        "count": count,
+        "founded": founded,
         "restaurants": List<dynamic>.from(restaurants.map((x) => x.toJson())),
       };
 }
