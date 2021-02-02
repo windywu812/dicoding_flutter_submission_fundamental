@@ -24,11 +24,20 @@ class _DetailPageState extends State<DetailPage> {
   RestaurantBloc _bloc;
   String _name;
   String _review;
+  final _nameHolder = TextEditingController();
+  final _reviewHolder = TextEditingController();
 
   @override
   void initState() {
     super.initState();
 
+    setupDb();
+
+    _bloc = RestaurantBloc();
+    _bloc.fetchDetail(widget.id);
+  }
+
+  void setupDb() {
     _db = SqliteDb.shared;
     _db.open();
     _db.checkIfFavorited(widget.id).then((b) {
@@ -36,9 +45,6 @@ class _DetailPageState extends State<DetailPage> {
         _isFavorited = b;
       });
     });
-
-    _bloc = RestaurantBloc();
-    _bloc.fetchDetail(widget.id);
   }
 
   @override
@@ -226,6 +232,7 @@ class _DetailPageState extends State<DetailPage> {
                           onChanged: (name) {
                             this._name = name;
                           },
+                          controller: _nameHolder,
                           style: Constant.bodyLabel,
                           maxLines: null,
                           keyboardType: TextInputType.multiline,
@@ -252,6 +259,7 @@ class _DetailPageState extends State<DetailPage> {
                           onChanged: (review) {
                             this._review = review;
                           },
+                          controller: _reviewHolder,
                           style: Constant.bodyLabel,
                           maxLines: null,
                           keyboardType: TextInputType.multiline,
@@ -280,6 +288,10 @@ class _DetailPageState extends State<DetailPage> {
                                   .then((result) {
                                 if (result.statusCode == 200) {
                                   _bloc.fetchDetail(widget.id);
+                                  this._name = "";
+                                  this._review = "";
+                                  _nameHolder.clear();
+                                  _reviewHolder.clear();
                                 }
                               });
                             }

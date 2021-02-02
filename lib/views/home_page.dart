@@ -50,19 +50,28 @@ class _HomePageState extends State<HomePage> {
               builder: (BuildContext context,
                   AsyncSnapshot<List<Restaurant>> snapshot) {
                 if (snapshot.hasData) {
-                  return Container(
-                    height: 140,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      physics: ScrollPhysics(),
-                      itemCount: snapshot.data.length,
-                      clipBehavior: Clip.none,
-                      itemBuilder: (context, index) {
-                        return buildPopularRestaurant(
-                            context, snapshot.data[index]);
-                      },
-                    ),
-                  );
+                  if (snapshot.data.isNotEmpty) {
+                    return Container(
+                      height: 140,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        physics: ScrollPhysics(),
+                        itemCount: snapshot.data.length,
+                        clipBehavior: Clip.none,
+                        itemBuilder: (context, index) {
+                          return buildPopularRestaurant(
+                              context, snapshot.data[index]);
+                        },
+                      ),
+                    );
+                  } else {
+                    return Center(
+                      child: Text(
+                        "No Internet Connection",
+                        style: Constant.bodyLabel,
+                      ),
+                    );
+                  }
                 } else {
                   return Padding(
                     padding: EdgeInsets.only(left: 16),
@@ -84,17 +93,27 @@ class _HomePageState extends State<HomePage> {
               builder: (BuildContext context,
                   AsyncSnapshot<List<Restaurant>> snapshot) {
                 if (snapshot.hasData) {
-                  return ListView.builder(
-                    padding: EdgeInsets.only(bottom: 48),
-                    scrollDirection: Axis.vertical,
-                    physics: ScrollPhysics(),
-                    itemCount: snapshot.data.length,
-                    clipBehavior: Clip.none,
-                    shrinkWrap: true,
-                    itemBuilder: (context, index) {
-                      return buildRestaurantCell(context, snapshot.data[index]);
-                    },
-                  );
+                  if (snapshot.data.isNotEmpty) {
+                    return ListView.builder(
+                      padding: EdgeInsets.only(bottom: 48),
+                      scrollDirection: Axis.vertical,
+                      physics: ScrollPhysics(),
+                      itemCount: snapshot.data.length,
+                      clipBehavior: Clip.none,
+                      shrinkWrap: true,
+                      itemBuilder: (context, index) {
+                        return buildRestaurantCell(
+                            context, snapshot.data[index]);
+                      },
+                    );
+                  } else {
+                    return Center(
+                      child: Text(
+                        "No Internet Connection",
+                        style: Constant.bodyLabel,
+                      ),
+                    );
+                  }
                 } else {
                   return Padding(
                     padding: EdgeInsets.only(left: 16),

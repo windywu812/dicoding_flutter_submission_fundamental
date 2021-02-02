@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:restaurant_app/models/detail_restaurant.dart';
 import 'package:restaurant_app/models/list_restaurants.dart';
 import 'package:http/http.dart' as http;
@@ -9,14 +11,12 @@ class ApiServices {
   final baseURL = 'https://restaurant-api.dicoding.dev/';
 
   Future<List<Restaurant>> fetchListRestaurant() async {
-    final response = await http.get(baseURL + 'list');
-    if (response.statusCode == 200) {
-      final result =
-          AllRestaurantsResponse.fromJson(json.decode(response.body));
-      return result.restaurants;
-    } else {
-      throw Exception(
-          'Failed to load post with status code: ${response.statusCode}');
+    try {
+      final response = await http.get(baseURL + 'list');
+      return AllRestaurantsResponse.fromJson(json.decode(response.body))
+          .restaurants;
+    } on Exception {
+      return List();
     }
   }
 
@@ -33,17 +33,15 @@ class ApiServices {
 
   Future<List<Restaurant>> fetchSearch(String keyword) async {
     dynamic response;
-    if (keyword == "") {
-      response = await http.get(baseURL + 'list');
-    } else {
-      response = await http.get(baseURL + 'search?q=$keyword');
-    }
-    if (response.statusCode == 200) {
-      final result = SearchResponse.fromJson(json.decode(response.body));
-      return result.restaurants;
-    } else {
-      throw Exception(
-          'Failed to load post with status code: ${response.statusCode}');
+    try {
+      if (keyword == "") {
+        response = await http.get(baseURL + 'list');
+      } else {
+        response = await http.get(baseURL + 'search?q=$keyword');
+      }
+      return SearchResponse.fromJson(json.decode(response.body)).restaurants;
+    } on Exception {
+      return List();
     }
   }
 
