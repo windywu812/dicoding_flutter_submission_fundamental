@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:restaurant_app/models/detail_restaurant.dart';
 import 'package:restaurant_app/models/list_restaurants.dart';
 import 'package:http/http.dart' as http;
