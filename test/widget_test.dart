@@ -5,26 +5,46 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
+import 'package:http/http.dart' as http;
 import 'package:restaurant_app/main.dart';
+import 'package:restaurant_app/services/restaurant_api_services.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(MyApp());
+  group('Provider Test', () {
+    ApiServices apiServices;
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    setUp(() {
+      apiServices = ApiServices();
+    });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    group('Fetch List Tests', () {
+      test('should able to call the api', () async {
+        final response = await http.get(apiServices.baseURL);
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+        expectLater(response.statusCode, 200);
+      });
+
+      test('should able to return list', () async {
+        final restaurants = await apiServices.fetchListRestaurant();
+
+        expectLater(restaurants.length, 20);
+      });
+    });
+
+    group('Fetch Search Test', () {
+      test('should able to do some search', () async {
+        final restaurant = await apiServices.fetchSearch('melting pot');
+
+        expect(restaurant.first.name, 'Melting Pot');
+      });
+    });
+
+    group('Fetch Detail Test', () {
+      test('should able to fetch detail', () async {
+        final detail = await apiServices.fetchDetail('rqdv5juczeskfw1e867');
+        expect(detail.id, "rqdv5juczeskfw1e867");
+      });
+    });
   });
 }

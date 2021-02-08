@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:restaurant_app/components/shimmering_box.dart';
+import 'package:restaurant_app/main.dart';
 import 'package:restaurant_app/models/restaurant.dart';
+import 'package:restaurant_app/services/notification_services.dart';
 import '../constant.dart' as Constant;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import '../repository/sqlite_db.dart';
 import 'detail_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AboutMePage extends StatefulWidget {
   static const routeName = '/about_me_page';
@@ -16,6 +19,21 @@ class AboutMePage extends StatefulWidget {
 
 class _AboutMePageState extends State<AboutMePage> {
   final db = SqliteDb.shared;
+  SharedPreferences _pref;
+  var _isNotificationOn = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initSharedPref();
+  }
+
+  void _initSharedPref() async {
+    _pref = await SharedPreferences.getInstance();
+    setState(() {
+      this._isNotificationOn = _pref.getBool('NotificationKey');
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -137,7 +155,31 @@ class _AboutMePageState extends State<AboutMePage> {
                           ),
                         ),
                       ],
-                    )
+                    ),
+                    Spacer(),
+                    IconButton(
+                      icon: Icon(this._isNotificationOn
+                          ? Icons.alarm
+                          : Icons.alarm_off),
+                      iconSize: 44,
+                      color: Colors.white,
+                      onPressed: () async {
+                        setState(() {
+                          this._isNotificationOn = !this._isNotificationOn;
+                        });
+                        if (this._isNotificationOn) {
+                          await NotificationServices.shared.initNotifications(
+                              flutterLocalNotificationsPlugin, context);
+                          NotificationServices.shared.scheduleNotification(
+                              flutterLocalNotificationsPlugin);
+                          this._pref.setBool('NotificationKey', true);
+                        } else {
+                          NotificationServices.shared.cancelNotification(
+                              flutterLocalNotificationsPlugin);
+                          this._pref.setBool('NotificationKey', false);
+                        }
+                      },
+                    ),
                   ],
                 ),
               ],

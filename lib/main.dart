@@ -1,20 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:restaurant_app/services/notification_services.dart';
 import 'package:restaurant_app/views/about_me_page.dart';
 import 'package:restaurant_app/views/detail_page.dart';
 import 'package:restaurant_app/views/home_page.dart';
 import 'package:restaurant_app/views/search_page.dart';
 import 'constant.dart' as Constant;
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
-  runApp(MyApp());
-}
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key key}) : super(key: key);
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
+  NotificationServices.shared
+      .requestIOSPermissions(flutterLocalNotificationsPlugin);
+
+  final _pref = await SharedPreferences.getInstance();
+
+  if (_pref.getBool('NotificationKey') == null) {
+    _pref.setBool('NotificationKey', false);
+  }
+
+  runApp(
+    MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Restaurant App',
       theme: ThemeData(accentColor: Constant.primaryColor),
@@ -27,6 +37,6 @@ class MyApp extends StatelessWidget {
         AboutMePage.routeName: (context) => AboutMePage(),
         SearchPage.routeName: (context) => SearchPage(),
       },
-    );
-  }
+    ),
+  );
 }
