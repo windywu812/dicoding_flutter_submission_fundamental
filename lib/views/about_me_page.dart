@@ -6,7 +6,7 @@ import 'package:restaurant_app/services/notification_services.dart';
 import '../constant.dart' as Constant;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import '../repository/sqlite_db.dart';
+import '../services/local_services.dart';
 import 'detail_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -18,7 +18,7 @@ class AboutMePage extends StatefulWidget {
 }
 
 class _AboutMePageState extends State<AboutMePage> {
-  final db = SqliteDb.shared;
+  final db = LocalServices.shared;
   SharedPreferences _pref;
   var _isNotificationOn = false;
 

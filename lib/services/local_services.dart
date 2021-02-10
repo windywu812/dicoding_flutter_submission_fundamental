@@ -6,8 +6,8 @@ import 'package:restaurant_app/models/restaurant.dart';
 import 'package:restaurant_app/services/restaurant_api_services.dart';
 import 'package:sqflite/sqflite.dart';
 
-class SqliteDb {
-  static final shared = SqliteDb();
+class LocalServices {
+  static final shared = LocalServices();
 
   static Database db;
   static String sqliteDbName = 'restaurants.db';
@@ -65,6 +65,10 @@ class SqliteDb {
     open();
 
     List<Restaurant> filter = List<Restaurant>();
+
+    // await db.query(Restaurant.tableName).then((r) {
+    //   print(r[0]['name']);
+    // });
 
     final List<Restaurant> restaurants =
         await ApiServices().fetchListRestaurant();

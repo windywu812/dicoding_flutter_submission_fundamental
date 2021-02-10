@@ -44,13 +44,6 @@ class NotificationServices {
     });
   }
 
-  void _onNotificationClick(BuildContext context) {
-    Navigator.pushNamed(
-      context,
-      HomePage.routeName,
-    );
-  }
-
   Future scheduleNotification(
       FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
     var time = Time(11, 0, 0);

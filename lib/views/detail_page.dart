@@ -6,7 +6,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:restaurant_app/services/restaurant_api_services.dart';
 import '../constant.dart' as Constant;
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import '../repository/sqlite_db.dart';
+import '../services/local_services.dart';
 
 class DetailPage extends StatefulWidget {
   static const routeName = '/detail_page';
@@ -20,7 +20,7 @@ class DetailPage extends StatefulWidget {
 
 class _DetailPageState extends State<DetailPage> {
   bool _isFavorited = false;
-  SqliteDb _db;
+  LocalServices _db;
   RestaurantBloc _bloc;
   String _name;
   String _review;
@@ -38,7 +38,7 @@ class _DetailPageState extends State<DetailPage> {
   }
 
   void setupDb() {
-    _db = SqliteDb.shared;
+    _db = LocalServices.shared;
     _db.open();
     _db.checkIfFavorited(widget.id).then((b) {
       setState(() {
