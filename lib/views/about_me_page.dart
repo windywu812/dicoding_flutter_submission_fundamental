@@ -26,6 +26,16 @@ class _AboutMePageState extends State<AboutMePage> {
   void initState() {
     super.initState();
     _initSharedPref();
+
+    db.getFavoriteList(context);
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    selectNotificationSubject.close();
+    didReceiveLocalNotificationSubject.close();
   }
 
   void _initSharedPref() async {
@@ -168,10 +178,10 @@ class _AboutMePageState extends State<AboutMePage> {
                           this._isNotificationOn = !this._isNotificationOn;
                         });
                         if (this._isNotificationOn) {
-                          await NotificationServices.shared.initNotifications(
-                              flutterLocalNotificationsPlugin, context);
                           NotificationServices.shared.scheduleNotification(
                               flutterLocalNotificationsPlugin);
+                          NotificationServices.shared
+                              .configureSelectNotificationSubject(context);
                           this._pref.setBool('NotificationKey', true);
                         } else {
                           NotificationServices.shared.cancelNotification(

@@ -13,7 +13,8 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  await NotificationServices.shared
+      .initNotifications(flutterLocalNotificationsPlugin);
   NotificationServices.shared
       .requestIOSPermissions(flutterLocalNotificationsPlugin);
 

@@ -7,7 +7,6 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
-import 'package:restaurant_app/main.dart';
 import 'package:restaurant_app/services/restaurant_api_services.dart';
 
 void main() {

@@ -57,6 +57,14 @@ class DetailRestaurant {
         customerReviews: List<CustomerReview>.from(
             json["customerReviews"].map((x) => CustomerReview.fromJson(x))),
       );
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "name": name,
+        "city": city,
+        "pictureId": pictureId,
+        "rating": rating,
+      };
 }
 
 class Category {
@@ -114,4 +122,9 @@ class Menus {
         drinks: List<Category>.from(
             json["drinks"].map((x) => Category.fromJson(x))),
       );
+
+  Map<String, dynamic> toJson() => {
+        "foods": List<dynamic>.from(foods.map((x) => x.toJson())),
+        "drinks": List<dynamic>.from(drinks.map((x) => x.toJson())),
+      };
 }

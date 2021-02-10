@@ -194,7 +194,7 @@ class _DetailPageState extends State<DetailPage> {
                                 InkWell(
                                   onTap: () {
                                     setState(() {
-                                      _db.insert(snapshot.data.id);
+                                      _db.insert(snapshot.data);
                                       this._isFavorited = !this._isFavorited;
                                     });
                                   },

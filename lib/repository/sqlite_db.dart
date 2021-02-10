@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:restaurant_app/models/detail_restaurant.dart';
 import 'package:restaurant_app/models/restaurant.dart';
 import 'package:restaurant_app/services/restaurant_api_services.dart';
 import 'package:sqflite/sqflite.dart';
@@ -16,20 +17,26 @@ class SqliteDb {
     String path = directory.path + 'restaurants.db';
     db = await openDatabase(path, version: 1,
         onCreate: (Database db, int version) async {
-      await db.execute(''' 
+      await db.execute(
+        ''' 
         CREATE TABLE IF NOT EXISTS ${Restaurant.tableName} (
-          id TEXT PRIMARY KEY)
-      ''');
+          id TEXT PRIMARY KEY,
+          name TEXT,
+          city TEXT,
+          pictureId TEXT,
+          rating TEXT
+          )''',
+      );
     });
   }
 
-  Future insert(String id) async {
-    Map<String, dynamic> map = {'id': id};
-    await checkIfFavorited(id).then((b) {
-      if (!b) {
-        db.insert(Restaurant.tableName, map);
+  Future insert(DetailRestaurant restaurant) async {
+    await checkIfFavorited(restaurant.id).then((result) {
+      if (!result) {
+        db.insert(Restaurant.tableName, restaurant.toJson());
       } else {
-        delete(id);
+        db.delete(Restaurant.tableName,
+            where: 'id = ?', whereArgs: [restaurant.id]);
       }
     });
   }
@@ -38,12 +45,6 @@ class SqliteDb {
     List<Map<String, dynamic>> restaurants =
         await db.query(Restaurant.tableName);
     return restaurants;
-  }
-
-  Future<int> delete(String id) async {
-    int count =
-        await db.delete(Restaurant.tableName, where: 'id = ?', whereArgs: [id]);
-    return count;
   }
 
   Future<bool> checkIfFavorited(String id) async {

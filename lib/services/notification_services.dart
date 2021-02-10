@@ -12,11 +12,12 @@ class ReceivedNotification {
   final String title;
   final String body;
   final String payload;
+
   ReceivedNotification({
-    @required this.id,
-    @required this.title,
-    @required this.body,
-    @required this.payload,
+    this.id,
+    this.title,
+    this.body,
+    this.payload,
   });
 }
 
@@ -24,10 +25,9 @@ class NotificationServices {
   static NotificationServices shared = NotificationServices();
 
   Future<void> initNotifications(
-      FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin,
-      BuildContext context) async {
+      FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
     var initializationSettingsAndroid =
-        AndroidInitializationSettings('app_icon');
+        AndroidInitializationSettings('flutter_icon');
 
     var initializationSettingsIOS = IOSInitializationSettings(
       requestAlertPermission: false,
@@ -40,7 +40,7 @@ class NotificationServices {
 
     await flutterLocalNotificationsPlugin.initialize(initializationSettings,
         onSelectNotification: (String payload) async {
-      _onNotificationClick(context);
+      selectNotificationSubject.add(payload);
     });
   }
 
@@ -58,8 +58,10 @@ class NotificationServices {
       'channel id',
       'channel name',
       'channel description',
-      icon: 'flutter_devs',
-      largeIcon: DrawableResourceAndroidBitmap('flutter_devs'),
+      icon: 'flutter_icon',
+      importance: Importance.max,
+      priority: Priority.high,
+      ticker: 'ticker',
     );
     var iOSPlatformChannelSpecifics = IOSNotificationDetails();
     var platformChannelSpecifics = NotificationDetails(
@@ -84,6 +86,15 @@ class NotificationServices {
           badge: true,
           sound: true,
         );
+  }
+
+  void configureSelectNotificationSubject(BuildContext context) {
+    selectNotificationSubject.stream.listen((String payload) async {
+      await Navigator.pushNamed(
+        context,
+        HomePage.routeName,
+      );
+    });
   }
 
   Future<void> cancelNotification(
