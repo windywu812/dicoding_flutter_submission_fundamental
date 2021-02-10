@@ -1,9 +1,7 @@
 import 'dart:io';
-import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:restaurant_app/models/detail_restaurant.dart';
 import 'package:restaurant_app/models/restaurant.dart';
-import 'package:restaurant_app/services/restaurant_api_services.dart';
 import 'package:sqflite/sqflite.dart';
 
 class LocalServices {
@@ -22,8 +20,8 @@ class LocalServices {
         CREATE TABLE IF NOT EXISTS ${Restaurant.tableName} (
           id TEXT PRIMARY KEY,
           name TEXT,
-          city TEXT,
           pictureId TEXT,
+          city TEXT,
           rating TEXT
           )''',
       );
@@ -35,16 +33,13 @@ class LocalServices {
       if (!result) {
         db.insert(Restaurant.tableName, restaurant.toJson());
       } else {
-        db.delete(Restaurant.tableName,
-            where: 'id = ?', whereArgs: [restaurant.id]);
+        delete(restaurant.id);
       }
     });
   }
 
-  Future<List<Map>> getAll() async {
-    List<Map<String, dynamic>> restaurants =
-        await db.query(Restaurant.tableName);
-    return restaurants;
+  void delete(String id) {
+    db.delete(Restaurant.tableName, where: 'id = ?', whereArgs: [id]);
   }
 
   Future<bool> checkIfFavorited(String id) async {
@@ -61,26 +56,24 @@ class LocalServices {
     return isFavorited;
   }
 
-  Future<List<Restaurant>> getFavoriteList(BuildContext context) async {
+  Future<List<Restaurant>> getFavoriteList() async {
     open();
 
-    List<Restaurant> filter = List<Restaurant>();
+    List<Restaurant> restaurants = List<Restaurant>();
 
-    // await db.query(Restaurant.tableName).then((r) {
-    //   print(r[0]['name']);
-    // });
+    List<Map<String, dynamic>> restaurantsDb =
+        await db.query(Restaurant.tableName);
 
-    final List<Restaurant> restaurants =
-        await ApiServices().fetchListRestaurant();
-
-    restaurants.forEach((r) {
-      checkIfFavorited(r.id).then((bool) {
-        if (bool) {
-          filter.add(r);
-        }
-      });
+    restaurantsDb.forEach((r) {
+      restaurants.add(Restaurant(
+        id: r['id'],
+        name: r['name'],
+        pictureId: r['pictureId'],
+        city: r['city'],
+        rating: double.parse(r['rating']),
+      ));
     });
 
-    return filter;
+    return restaurants;
   }
 }

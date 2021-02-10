@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:restaurant_app/blocs/favorite_bloc.dart';
 import 'package:restaurant_app/components/shimmering_box.dart';
 import 'package:restaurant_app/main.dart';
 import 'package:restaurant_app/models/restaurant.dart';
@@ -18,8 +19,8 @@ class AboutMePage extends StatefulWidget {
 }
 
 class _AboutMePageState extends State<AboutMePage> {
-  final db = LocalServices.shared;
   SharedPreferences _pref;
+  FavoriteBloc _bloc;
   var _isNotificationOn = false;
 
   @override
@@ -27,7 +28,8 @@ class _AboutMePageState extends State<AboutMePage> {
     super.initState();
     _initSharedPref();
 
-    db.getFavoriteList(context);
+    _bloc = FavoriteBloc();
+    _bloc.fetchAllRestaurant();
   }
 
   @override
@@ -62,8 +64,8 @@ class _AboutMePageState extends State<AboutMePage> {
                 style: Constant.title1,
               ),
             ),
-            FutureBuilder(
-              future: db.getFavoriteList(context),
+            StreamBuilder(
+              stream: _bloc.favoriteRestaurants,
               builder: (BuildContext context, AsyncSnapshot snapshot) {
                 if (snapshot.hasData) {
                   return ListView.builder(
@@ -201,100 +203,108 @@ class _AboutMePageState extends State<AboutMePage> {
   }
 
   Widget buildRestaurantCell(BuildContext context, Restaurant restaurant) {
-    return InkWell(
-      onTap: () {
-        Navigator.pushNamed(context, DetailPage.routeName,
-                arguments: restaurant.id)
-            .then((value) => setState(() {}));
+    return Dismissible(
+      key: UniqueKey(),
+      background: Container(color: Colors.red[300]),
+      onDismissed: (direction) {
+        LocalServices.shared.delete(restaurant.id);
+        _bloc.fetchAllRestaurant();
       },
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.0),
-        child: Container(
-          height: 120,
-          margin: EdgeInsets.only(bottom: 16),
-          decoration: BoxDecoration(
-            boxShadow: [
-              BoxShadow(
-                blurRadius: 24,
-                offset: Offset(0, 8),
-                color: Colors.black.withOpacity(0.1),
-              )
-            ],
-            borderRadius: BorderRadius.circular(8),
-            color: Colors.white,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Hero(
-                tag: restaurant.pictureId,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(8),
-                    topLeft: Radius.circular(8),
-                  ),
-                  child: CachedNetworkImage(
-                    placeholder: (context, url) => Container(
-                      color: Colors.grey,
+      child: InkWell(
+        onTap: () {
+          Navigator.pushNamed(context, DetailPage.routeName,
+                  arguments: restaurant.id)
+              .then((value) => setState(() {}));
+        },
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          child: Container(
+            height: 120,
+            margin: EdgeInsets.only(bottom: 16),
+            decoration: BoxDecoration(
+              boxShadow: [
+                BoxShadow(
+                  blurRadius: 24,
+                  offset: Offset(0, 8),
+                  color: Colors.black.withOpacity(0.1),
+                )
+              ],
+              borderRadius: BorderRadius.circular(8),
+              color: Colors.white,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Hero(
+                  tag: restaurant.pictureId,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(8),
+                      topLeft: Radius.circular(8),
                     ),
-                    imageUrl: restaurant.pictureId,
-                    width: MediaQuery.of(context).size.width / 2 - 32,
-                    height: 120,
-                    fit: BoxFit.fill,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 16.0, top: 12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: MediaQuery.of(context).size.width / 2 - 48,
-                      child: Text(
-                        '${restaurant.name}',
-                        style: Constant.bodyLabel,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                    child: CachedNetworkImage(
+                      placeholder: (context, url) => Container(
+                        color: Colors.grey,
                       ),
+                      imageUrl: restaurant.pictureId,
+                      width: MediaQuery.of(context).size.width / 2 - 32,
+                      height: 120,
+                      fit: BoxFit.fill,
                     ),
-                    RatingBarIndicator(
-                      rating: restaurant.rating,
-                      itemBuilder: (context, index) => Icon(
-                        Icons.star_rounded,
-                        color: Colors.amber,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0, top: 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: MediaQuery.of(context).size.width / 2 - 48,
+                        child: Text(
+                          '${restaurant.name}',
+                          style: Constant.bodyLabel,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                      itemCount: 5,
-                      itemSize: 22.0,
-                    ),
-                    Text(
-                      'Rating: ${restaurant.rating}',
-                      style: Constant.secondaryLabel,
-                    ),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.location_on,
-                          color: Colors.black.withOpacity(0.5),
+                      RatingBarIndicator(
+                        rating: restaurant.rating,
+                        itemBuilder: (context, index) => Icon(
+                          Icons.star_rounded,
+                          color: Colors.amber,
                         ),
-                        Text(
-                          restaurant.city,
-                          style: Constant.secondaryLabel,
-                        ),
-                      ],
-                    )
-                  ],
+                        itemCount: 5,
+                        itemSize: 22.0,
+                      ),
+                      Text(
+                        'Rating: ${restaurant.rating}',
+                        style: Constant.secondaryLabel,
+                      ),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.location_on,
+                            color: Colors.black.withOpacity(0.5),
+                          ),
+                          Text(
+                            restaurant.city,
+                            style: Constant.secondaryLabel,
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
                 ),
-              ),
-              Spacer(),
-              Padding(
-                padding: const EdgeInsets.only(right: 8.0),
-                child: Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  color: Constant.primaryColor,
+                Spacer(),
+                Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    color: Constant.primaryColor,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
