@@ -57,7 +57,9 @@ class LocalServices {
   }
 
   Future<List<Restaurant>> getFavoriteList() async {
-    open();
+    if (db == null) {
+      await open();
+    }
 
     List<Restaurant> restaurants = List<Restaurant>();
 
